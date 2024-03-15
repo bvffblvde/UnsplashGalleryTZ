@@ -1,0 +1,31 @@
+html{
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.background {
+    background-color: #1E1E1E;
+}
+
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+@font-face {
+    font-family: 'Inter-Regular';
+    src: url('./fonts/Inter/static/Inter-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inter-Bold';
+    src: url('./fonts/Inter/static/Inter-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
