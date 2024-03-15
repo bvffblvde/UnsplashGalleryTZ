@@ -8,14 +8,12 @@ import Typography from "@material-ui/core/Typography";
 import SectionWrapper from "../UI/SectionWrapper";
 import Button from "@material-ui/core/Button";
 import FavoriteIcon from '@material-ui/icons/Favorite';
-import FullScreenImage from "../UI/ImageModal";
+import {Link} from "react-router-dom";
 
 
 const useStyles = makeStyles((theme) => ({
     card: {
         marginBottom: 20,
-        width: 'calc(50% - 10px)',
-        flexGrow: 1,
         border: '2px solid #90AFFF',
         borderRadius: '12px',
         transition: 'all 0.3s ease-out',
@@ -113,6 +111,12 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-end',
+    },
+    link: {
+        textDecoration: 'none',
+        color: 'inherit',
+        width: 'calc(50% - 10px)',
+        flexGrow: 1,
     }
 }));
 
@@ -123,8 +127,6 @@ const ImageList = () => {
     const [page, setPage] = useState(1);
     // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const perPage = 10;
 
     useEffect(() => {
@@ -156,51 +158,42 @@ const ImageList = () => {
     };
 
     const handleImageClick = (image) => {
-        setSelectedImage(image);
-        setIsModalOpen(true);
-    };
+        console.log('Image clicked:', image);
+    }
 
-    const handleCloseFullScreenImage = () => {
-        setSelectedImage(null);
-        setIsModalOpen(false);
-    };
 
     return (
         <SectionWrapper paddingTop="20px">
             <div className={classes.container}>
                 {images.map((image, index) => (
-                    <Card key={image.id} className={classes.card} onClick={() => handleImageClick(image)}>
-                        <CardMedia
-                            className={classes.media}
-                            image={image.urls.small}
-                            title={image.alt_description}
-                        />
-                        <div className={classes.mediaOverlay}></div>
-                        <Typography variant="body1" color="textPrimary" component="p" className={classes.title}>
-                            {image.alt_description}
-                        </Typography>
-                        <CardContent className={classes.authorSection}>
-                            <Typography variant="body2" color="textSecondary" component="p" className={classes.author}>
-                                {image.user.username}
+                    <Link to={{ pathname: `/image/${image.id}`, state: { image } }} key={image.id} className={classes.link}>
+                        <Card key={image.id} className={classes.card} onClick={() => handleImageClick(image)}>
+                            <CardMedia
+                                className={classes.media}
+                                image={image.urls.small}
+                                title={image.alt_description}
+                            />
+                            <div className={classes.mediaOverlay}></div>
+                            <Typography variant="body1" color="textPrimary" component="p" className={classes.title}>
+                                {image.alt_description}
                             </Typography>
-                            <div className={classes.likes}>
-                                <FavoriteIcon className={classes.icon} />
-                                {image.likes}
-                            </div>
-                        </CardContent>
-                    </Card>
+                            <CardContent className={classes.authorSection}>
+                                <Typography variant="body2" color="textSecondary" component="p"
+                                            className={classes.author}>
+                                    {image.user.username}
+                                </Typography>
+                                <div className={classes.likes}>
+                                    <FavoriteIcon className={classes.icon}/>
+                                    {image.likes}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Link>
                 ))}
             </div>
             <Button variant="contained" color="primary" className={classes.button} onClick={handleShowMore}>
                 Show more
             </Button>
-            {selectedImage && (
-                <FullScreenImage
-                    open={isModalOpen}
-                    handleClose={handleCloseFullScreenImage}
-                    image={selectedImage}
-                />
-            )}
         </SectionWrapper>
     );
 };

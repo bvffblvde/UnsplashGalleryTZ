@@ -1,122 +1,126 @@
-import React, {useEffect, useState} from 'react';
-import { makeStyles, Dialog, AppBar, Toolbar, IconButton, Typography, Slide, CardMedia, CardContent } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
+import Typography from '@material-ui/core/Typography';
+import {useLocation} from 'react-router-dom';
+import {Box, CircularProgress, IconButton} from '@material-ui/core';
+import {makeStyles} from '@material-ui/core/styles';
+import SectionWrapper from "../SectionWrapper";
 import FavoriteIcon from "@material-ui/icons/Favorite";
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
-const useStyles = makeStyles(theme => ({
-    appBar: {
-        position: 'relative',
-    },
-    title: {
-        marginLeft: theme.spacing(2),
-        flex: 1,
-        fontFamily: 'Inter-Bold',
-        fontWeight: 700,
-        color: '#90AFFF',
-        textTransform: 'uppercase',
-        fontSize: '20px',
-    },
-    media: {
-        height: '75vh',
-        position: 'relative',
-    },
-    toolBar: {
-        backgroundColor: '#1E1E1E',
-        boxShadow: 'none',
-    },
-    textContent: {
-        flex: '1 0 auto',
+
+const useStyles = makeStyles((theme) => ({
+    content: {
         display: 'flex',
         justifyContent: 'space-between',
-        backgroundColor: '#1E1E1E',
-        alignItems: 'center',
-    },
-    icon: {
-        color: '#90AFFF',
-    },
-    userName: {
-        fontFamily: 'Inter-Bold',
-        fontWeight: 700,
-        color: '#90AFFF',
-        textTransform: 'uppercase',
-        fontSize: '20px',
     },
     likes: {
         fontSize: '16px',
-        color: 'white',
+        color: '#90AFFF',
         fontFamily: 'Inter-Bold',
         fontWeight: 700,
         display: 'flex',
-        alignItems: 'center',
     },
+    icon: {
+        marginRight: '5px',
+    },
+    media: {
+        width: '100%',
+        height: '70vh',
+        objectFit: 'cover',
+        borderRadius: '12px',
+        marginBottom: '20px',
+    },
+    name: {
+        fontSize: '20px',
+        color: '#90AFFF',
+        fontFamily: 'Inter-Bold',
+        fontWeight: 700,
+        textTransform: 'uppercase',
+    },
+    headerSection: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px',
+    },
+    iconButton: {
+        color: '#90AFFF',
+        padding: '0',
+        marginRight: '10px',
+    }
 }));
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
-
-const FullScreenImage = ({ open, handleClose, image }) => {
+const ImageView = () => {
     const classes = useStyles();
-    const [modalOpen, setModalOpen] = useState(open);
+    const location = useLocation();
+    const [imageData, setImageData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const imageId = location.pathname.split('/').pop();
 
     useEffect(() => {
-        setModalOpen(open);
-    }, [open]);
-
-    useEffect(() => {
-        const handleScroll = (e) => {
-            if (modalOpen) {
-                e.preventDefault();
+        const fetchImageData = async () => {
+            try {
+                const response = await axios.get(`https://api.unsplash.com/photos/${imageId}`, {
+                    params: {
+                        client_id: 'JzB_jrxvl8s29begx69UaZ3P4_08YGXSqyEPwnhTkZ0',
+                    },
+                });
+                setImageData(response.data);
+            } catch (error) {
+                console.error('Error fetching image data:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        if (modalOpen) {
-            document.body.style.overflow = 'hidden';
-            window.addEventListener('scroll', handleScroll);
-        } else {
-            document.body.style.overflow = 'auto';
-            window.removeEventListener('scroll', handleScroll);
-        }
+        fetchImageData();
+    }, [imageId]);
 
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, [modalOpen]);
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)'
+            }}>
+                <CircularProgress color="primary"/>
+            </div>
+        );
+    }
+
+    const handleGoBack = () => {
+        window.history.back();
+    };
+
+    if (!imageData) {
+        return <div>Image not found</div>;
+    }
 
     return (
-        <Dialog fullScreen open={modalOpen} onClose={handleClose} TransitionComponent={Transition}>
-            <AppBar className={classes.appBar}>
-                <Toolbar className={classes.toolBar}>
-                    <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
-                        <CloseIcon className={classes.icon}/>
-                    </IconButton>
-                    <Typography variant="h6" className={classes.title}>
-                        {image.alt_description}
-                    </Typography>
-                </Toolbar>
-            </AppBar>
-            {image && (
-                <CardMedia
-                    className={classes.media}
-                    image={image.urls.full}
-                    title={image.alt_description}
-                />
-            )}
-            <CardContent className={classes.textContent}>
-                <Typography variant="body1" color="textSecondary" component="p" className={classes.userName}>
-                    {image.user.username}
-                </Typography>
+        <SectionWrapper paddingTop="0">
+            <Box className={classes.headerSection}>
+                <IconButton onClick={handleGoBack} className={classes.iconButton}>
+                    <ArrowBackIcon/>
+                </IconButton>
+
+                <Typography variant="h5" className={classes.name}>{imageData.alt_description}</Typography>
+            </Box>
+            <img src={imageData.urls.full} alt={imageData.alt_description} className={classes.media}/>
+            <Box className={classes.content}>
+                <Typography variant="body1" className={classes.name}>{imageData.user.username}</Typography>
                 <div className={classes.likes}>
-                    <FavoriteIcon className={classes.icon} />
-                    {image.likes}
+                    <FavoriteIcon className={classes.icon}/>
+                    {imageData.likes}
                 </div>
-            </CardContent>
-        </Dialog>
+            </Box>
+        </SectionWrapper>
     );
 };
 
-export default FullScreenImage;
-
+export default ImageView;
 
 
 
