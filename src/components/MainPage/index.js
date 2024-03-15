@@ -11,7 +11,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import FullScreenImage from "../UI/ImageModal";
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     card: {
         marginBottom: 20,
         width: 'calc(50% - 10px)',
@@ -33,9 +33,12 @@ const useStyles = makeStyles({
         }
     },
     media: {
-        height: '30vh',
+        height: '40vh',
         width: '100%',
         transition: 'all 0.3s ease-out',
+        [theme.breakpoints.down('sm')]: {
+            height: '30vh',
+        }
     },
     mediaOverlay: {
         position: 'absolute',
@@ -111,13 +114,14 @@ const useStyles = makeStyles({
         alignItems: 'center',
         justifyContent: 'flex-end',
     }
-});
+}));
 
 
 const ImageList = () => {
     const classes = useStyles();
     const [images, setImages] = useState([]);
     const [page, setPage] = useState(1);
+    // eslint-disable-next-line no-unused-vars
     const [loading, setLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
